@@ -1,5 +1,5 @@
 module Rack
-  module Shield
+  class Shield
     VERSION = "0.1.0"
   end
 end
