@@ -1,8 +1,6 @@
-require "rack/shield/version"
+require 'rack'
+require 'redis'
 
-module Rack
-  module Shield
-    class Error < StandardError; end
-    # Your code goes here...
-  end
+class Rack::Shield
+  autoload :Configurable, 'rack/shield/configurable'
 end

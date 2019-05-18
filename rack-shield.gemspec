@@ -38,9 +38,12 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 2.3"
 
   spec.add_dependency "rack", "~> 2.0"
+  spec.add_dependency "redis", "~> 4.0"
 
   spec.add_development_dependency "bundler", "~> 2.0"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"
+  spec.add_development_dependency "rspec-its", "~> 1.3"
   spec.add_development_dependency "rack-test", "~> 1.1"
+  spec.add_development_dependency "timecop", "~> 0.8.1"
 end

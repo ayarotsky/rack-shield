@@ -8,6 +8,7 @@
 /tmp/
 
 .ruby-version
+.DS_Store
 
 # rspec failure tracking
 .rspec_status
