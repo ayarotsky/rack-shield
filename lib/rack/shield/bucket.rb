@@ -4,7 +4,7 @@ module Rack
       DEFAULT_TOKENS_COUNT = 1
       FB_PUSH_FAILURE_RESPONSE_CODE = -1
 
-      attr_reader :replenish_rate, :throttled_response, :filter
+      attr_reader :replenish_rate, :throttled_response, :filter, :key, :tokens
 
       def initialize(app)
         @app = app
@@ -12,15 +12,15 @@ module Rack
 
       def replenish_rate=(value)
         if value.to_i < 1
-          raise ArgumentError.new('replenish_rate must be greater than 0')
+          raise ArgumentError, 'replenish_rate must be greater than 0'
         end
 
-        @replenish_rate = value
+        @replenish_rate = value.to_i
       end
 
       def key=(value)
         unless callable_or?(String, value)
-          raise ArgumentError.new('key must be either String or respond to #call')
+          raise ArgumentError, 'key must be either String or respond to #call'
         end
 
         @key = value
@@ -28,7 +28,7 @@ module Rack
 
       def throttled_response=(value)
         unless callable?(value)
-          raise ArgumentError.new('throttled_response must respond to #call')
+          raise ArgumentError, 'throttled_response must respond to #call'
         end
 
         @throttled_response = value
@@ -36,7 +36,7 @@ module Rack
 
       def tokens=(value)
         unless callable_or?(Integer, value)
-          raise ArgumentError.new('tokens must be either Integer or respond to #call')
+          raise ArgumentError, 'tokens must be either Integer or respond to #call'
         end
 
         @tokens = value
@@ -44,7 +44,7 @@ module Rack
 
       def filter=(value)
         unless callable?(value)
-          raise ArgumentError.new('filter must respond to #call')
+          raise ArgumentError, 'filter must respond to #call'
         end
 
         @filter = value
@@ -69,14 +69,14 @@ module Rack
       end
 
       def tokens_remaining_after(request)
-        @app.redis.call('shield.fb_push', key(request), replenish_rate, tokens(request))
+        @app.redis.call('shield.fb_push', key_from(request), replenish_rate, tokens_from(request))
       end
 
-      def key(request)
+      def key_from(request)
         @key.respond_to?(:call) ? @key.call(request) : @key
       end
 
-      def tokens(request)
+      def tokens_from(request)
         taken_tokens = @tokens.respond_to?(:call) ? @tokens.call(self) : @tokens
         taken_tokens || DEFAULT_TOKENS_COUNT
       end

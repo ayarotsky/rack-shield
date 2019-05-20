@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["yarotsky.alex@gmail.com"]
 
   spec.summary       = "Request rate limiter for rack apps"
-  spec.description   = "A rack middleware for blocking abusive requests"
+  spec.description   = "Rack middleware for blocking abusive requests"
   spec.homepage      = "https://github.com/ayarotsky/rack-shield"
   spec.license       = "MIT"
 
