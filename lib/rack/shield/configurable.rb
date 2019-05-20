@@ -5,29 +5,41 @@ module Rack
         base.extend ClassMethods
       end
 
-      def config
-        @config ||= self.class.config
+      def buckets
+        self.class.buckets
       end
 
       module ClassMethods
-        def config
-          @config ||= configuration_class.new
+        attr_reader :redis
+
+        def configure_bucket
+          bucket = Bucket.new(self)
+          yield bucket
+          self.buckets << bucket
         end
 
-        def configure
-          yield config
+        def redis=(connection)
+          unless valid_redis_connection?(connection)
+            raise ArgumentError.new
+              'must be a connection to a redis server with redis-shield module included'
+          end
+
+          @redis = connection
+        end
+
+        def buckets
+          @buckets ||= []
         end
 
         private
 
-        def config_accessor(*attributes)
-          configuration_class.class_eval do
-            attr_accessor *attributes
-          end
-        end
-
-        def configuration_class
-          @configuration_class ||= Class.new
+        def valid_redis_connection?(connection)
+          connection.present? &&
+            connection.call('module', 'list')
+              .flatten
+              .map(&:to_s)
+              .map(&:downcase)
+              .include?('shield')
         end
       end
     end

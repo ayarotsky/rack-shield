@@ -2,6 +2,23 @@ require 'rack'
 require 'redis'
 
 class Rack::Shield
+  autoload :Bucket, 'rack/shield/bucket'
   autoload :Configurable, 'rack/shield/configurable'
-  autoload :Request, 'rack/shield/request'
+
+  include Configurable
+
+  def initialize(app)
+    @app = app
+  end
+
+  def call(env)
+    request = Rack::Request.new(env)
+    bucket = buckets.find { |b| b.matches?(request) }
+
+    if bucket && bucket.rejects?(request)
+      bucket.throttled_response.call(env)
+    else
+      @app.call(env)
+    end
+  end
 end

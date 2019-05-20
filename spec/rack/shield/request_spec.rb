@@ -1,5 +1,5 @@
 RSpec.describe Rack::Shield::Request do
-  let(:env) { {requests: 10, user: 'test'} }
+  let(:env) { build_rack_env(requests: 10) }
   subject(:request) { described_class.new(env) }
 
   describe '#count' do
@@ -8,15 +8,9 @@ RSpec.describe Rack::Shield::Request do
     end
 
     context 'count was configured' do
-      around do |example|
+      before do
         described_class.configure do |config|
-          config.count = ->(env) { env[:requests] }
-        end
-
-        example.run
-
-        described_class.configure do |config|
-          config.count = nil
+          config.count = ->(request) { request.env[:requests] }
         end
       end
 
@@ -27,10 +21,10 @@ RSpec.describe Rack::Shield::Request do
   describe '#user_id' do
     before do
       described_class.configure do |config|
-        config.user_id = ->(env) { env[:user] * 2 }
+        config.user_id = ->(request) { request.ip }
       end
     end
 
-    its(:user_id) { is_expected.to eq('testtest') }
+    its(:user_id) { is_expected.to eq('127.0.0.1') }
   end
 end
