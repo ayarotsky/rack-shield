@@ -32,18 +32,18 @@ RSpec.describe Rack::Shield::Bucket do
   end
 
   describe '#rejects?' do
-    let(:accept) { !bucket.rejects?(request) }
+    let(:reject) { bucket.rejects?(request) }
 
     context 'request takes less tokens than available in bucket' do
       it 'accepts the request' do
-        expect(accept).to be true
+        expect(reject).to be false
       end
     end
 
     context 'request takes more tokens than available in bucket' do
       it 'rejects the request' do
         bucket.tokens = 21
-        expect(accept).to be false
+        expect(reject).to be true
       end
     end
   end

@@ -19,7 +19,7 @@ RSpec.describe Rack::Shield do
   context 'rate limit was not exceeded' do
     let(:tokens_per_request) { 3 }
 
-    it 'accepts requests' do
+    xit 'accepts requests' do
       get '/'
       expect(last_response).to be_ok
     end
@@ -28,9 +28,15 @@ RSpec.describe Rack::Shield do
   context 'rate limit was exceeded' do
     let(:tokens_per_request) { 11 }
 
-    it 'rejects requests' do
+    xit 'rejects requests' do
       get '/'
       expect(last_response.status).to eq(403)
     end
   end
+
+  describe '.configure_bucket'
+
+  describe '.redis='
+
+  describe '#buckets'
 end
