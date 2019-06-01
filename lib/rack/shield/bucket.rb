@@ -7,9 +7,12 @@ module Rack
 
       attr_accessor :replenish_rate, :throttled_response, :filter, :key, :tokens
 
-      # Initialize with redis instead of app. Raise an exception if needed
       def initialize(redis)
         @redis = redis
+      end
+
+      def tokens
+        @tokens || DEFAULT_TOKENS_COUNT
       end
 
       def matches?(request)
@@ -31,8 +34,7 @@ module Rack
       end
 
       def tokens_from(request)
-        taken_tokens = tokens.respond_to?(:call) ? tokens.call(request) : tokens
-        taken_tokens || DEFAULT_TOKENS_COUNT
+        tokens.respond_to?(:call) ? tokens.call(request) : tokens
       end
     end
   end

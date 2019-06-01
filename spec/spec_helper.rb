@@ -10,8 +10,8 @@ require 'rack/shield'
 Dir[File.join(File.dirname(__FILE__), 'support/**/*.rb')].each { |f| require f }
 
 RSpec.configure do |config|
-  include Rack::Test::Methods
-  include Rack::Shield::TestHelpers
+  config.include Rack::Test::Methods
+  config.include Rack::Shield::TestHelpers
 
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = '.rspec_status'

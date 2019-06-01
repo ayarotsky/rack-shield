@@ -24,7 +24,7 @@ class RedisShieldMock
 
   # SHIELD.FX_PUSH <key>, <limit>, <tokens>
   def shield_fb_push_redis_command(*args)
-    diff = @available_tokens - args[2]
+    diff = @available_tokens - args[2].to_i
     return FX_PUSH_FAILURE_RESPONSE if diff < 0
     @available_tokens = diff
   end

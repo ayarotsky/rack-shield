@@ -4,6 +4,11 @@ require 'yaml'
 
 module Rack
   class Shield
+    def self.clear_configuration
+      @redis = nil
+      @buckets = []
+    end
+
     module TestHelpers
       def app
         Rack::Builder.new do

@@ -9,7 +9,7 @@ module Rack
       end
 
       def fb_push(key, replenish_rate, tokens)
-        connection.call('shield.fb_push', key, replenish_rate, tokens)
+        connection.call('SHIELD.FB_PUSH', key, replenish_rate, tokens)
       end
 
       private

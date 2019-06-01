@@ -19,7 +19,7 @@ module Rack
       request = Rack::Request.new(env)
       bucket = buckets.find { |b| b.matches?(request) }
 
-      if bucket && bucket.rejects?(request)
+      if bucket&.rejects?(request)
         bucket.throttled_response.call(env)
       else
         @app.call(env)
