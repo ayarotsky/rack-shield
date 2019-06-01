@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 class RedisShieldMock
   FX_PUSH_FAILURE_RESPONSE = -1
-  SUPPORTED_COMMANDS = %w[shield.fb_push module]
+  SUPPORTED_COMMANDS = %w(shield.fb_push module).freeze
 
   def initialize(available_tokens:)
     @available_tokens = available_tokens
@@ -8,8 +10,10 @@ class RedisShieldMock
 
   def call(*args)
     command = args[0].downcase
-    raise ArgumentError.new('Unknown redis command') unless SUPPORTED_COMMANDS.include?(command)
-    __send__("#{command.gsub('.', '_')}_redis_command", *args[1..-1])
+    unless SUPPORTED_COMMANDS.include?(command)
+      raise ArgumentError, 'Unknown redis command'
+    end
+    __send__("#{command.tr('.', '_')}_redis_command", *args[1..-1])
   end
 
   private

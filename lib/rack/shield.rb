@@ -1,24 +1,28 @@
+# frozen_string_literal: true
+
 require 'rack'
 require 'redis'
 
-class Rack::Shield
-  autoload :Bucket, 'rack/shield/bucket'
-  autoload :Configurable, 'rack/shield/configurable'
+module Rack
+  class Shield
+    autoload :Bucket, 'rack/shield/bucket'
+    autoload :Configurable, 'rack/shield/configurable'
 
-  include Configurable
+    include Configurable
 
-  def initialize(app)
-    @app = app
-  end
+    def initialize(app)
+      @app = app
+    end
 
-  def call(env)
-    request = Rack::Request.new(env)
-    bucket = buckets.find { |b| b.matches?(request) }
+    def call(env)
+      request = Rack::Request.new(env)
+      bucket = buckets.find { |b| b.matches?(request) }
 
-    if bucket && bucket.rejects?(request)
-      bucket.throttled_response.call(env)
-    else
-      @app.call(env)
+      if bucket && bucket.rejects?(request)
+        bucket.throttled_response.call(env)
+      else
+        @app.call(env)
+      end
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Rack
   class Shield
     module Configurable
@@ -15,13 +17,14 @@ module Rack
         def configure_bucket
           bucket = Bucket.new(self)
           yield bucket
-          self.buckets << bucket
+          buckets << bucket
         end
 
         def redis=(connection)
           unless valid_redis_connection?(connection)
-            raise ArgumentError.new
-              'must be a connection to a redis server with redis-shield module included'
+            raise ArgumentError,
+                  'must be a connection to a redis server with ' \
+                  'redis-shield module included'
           end
 
           @redis = connection
@@ -36,10 +39,10 @@ module Rack
         def valid_redis_connection?(connection)
           connection.present? &&
             connection.call('module', 'list')
-              .flatten
-              .map(&:to_s)
-              .map(&:downcase)
-              .include?('shield')
+                      .flatten
+                      .map(&:to_s)
+                      .map(&:downcase)
+                      .include?('shield')
         end
       end
     end

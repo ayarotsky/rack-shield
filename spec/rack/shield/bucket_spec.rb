@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Rack::Shield::Bucket do
   let(:app) { double(redis: RedisShieldMock.new(available_tokens: 10)) }
   let(:bucket) { described_class.new(app) }

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Rack::Shield do
   before do
     header 'request_tokens', tokens_per_request.to_s
