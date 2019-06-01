@@ -3,6 +3,7 @@
 require 'bundler/setup'
 require 'rspec/its'
 require 'rack/test'
+require 'mock_redis'
 
 require 'rack/shield'
 

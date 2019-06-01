@@ -8,8 +8,8 @@ module Rack
       attr_accessor :replenish_rate, :throttled_response, :filter, :key, :tokens
 
       # Initialize with redis instead of app. Raise an exception if needed
-      def initialize(app)
-        @app = app
+      def initialize(redis)
+        @redis = redis
       end
 
       def matches?(request)
@@ -23,10 +23,7 @@ module Rack
       private
 
       def tokens_remaining_after(request)
-        @app.redis.call('shield.fb_push',
-                        key_from(request),
-                        replenish_rate,
-                        tokens_from(request))
+        @redis.fb_push(key_from(request), replenish_rate, tokens_from(request))
       end
 
       def key_from(request)

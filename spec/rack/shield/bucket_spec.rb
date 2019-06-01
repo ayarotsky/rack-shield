@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
 RSpec.describe Rack::Shield::Bucket do
-  let(:app) { double(redis: RedisShieldMock.new(available_tokens: 10)) }
-  let(:bucket) { described_class.new(app) }
-  let(:request) { Rack::Request.new(build_rack_env('QUERY_STRING' => 'test')) }
+  let(:redis) { RedisShieldMock.new(available_tokens: 10) }
+  let(:redis_connection) { Rack::Shield::RedisConnection.new(redis) }
+  let(:bucket) { described_class.new(redis_connection) }
+  let(:request) do
+    Rack::Request.new(build_rack_env('QUERY_STRING' => 'test', 'count' => 21))
+  end
 
   describe '#matches?' do
     let(:match) { bucket.matches?(request) }
@@ -18,16 +21,12 @@ RSpec.describe Rack::Shield::Bucket do
 
     context 'filter is configured' do
       it 'matches requests that satisfy conditions' do
-        bucket.filter = lambda do |req|
-          req.env['QUERY_STRING'] == 'test'
-        end
+        bucket.filter = ->(req) { req.env['QUERY_STRING'] == 'test' }
         expect(match).to be true
       end
 
       it 'does not match requests that do not satisfy conditions' do
-        bucket.filter = lambda do |req|
-          req.env['QUERY_STRING'] == '/'
-        end
+        bucket.filter = ->(req) { req.env['QUERY_STRING'] == '/' }
         expect(match).to be false
       end
     end
@@ -44,7 +43,7 @@ RSpec.describe Rack::Shield::Bucket do
 
     context 'request takes more tokens than available in bucket' do
       it 'rejects the request' do
-        bucket.tokens = 21
+        bucket.tokens = ->(req) { req.env['count'] }
         expect(reject).to be true
       end
     end

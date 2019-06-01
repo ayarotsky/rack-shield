@@ -15,34 +15,18 @@ module Rack
         attr_reader :redis
 
         def configure_bucket
-          bucket = Bucket.new(self)
+          raise ArgumentError, 'redis connection is not configured' unless redis
+          bucket = Bucket.new(redis)
           yield bucket
           buckets << bucket
         end
 
         def redis=(connection)
-          unless valid_redis_connection?(connection)
-            raise ArgumentError,
-                  'must be a connection to a redis server with ' \
-                  'redis-shield module included'
-          end
-
-          @redis = connection
+          @redis = RedisConnection.new(connection)
         end
 
         def buckets
           @buckets ||= []
-        end
-
-        private
-
-        def valid_redis_connection?(connection)
-          connection.present? &&
-            connection.call('module', 'list')
-                      .flatten
-                      .map(&:to_s)
-                      .map(&:downcase)
-                      .include?('shield')
         end
       end
     end
