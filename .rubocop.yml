@@ -1,2 +1,7 @@
 AllCops:
   TargetRubyVersion: 2.3
+
+Metrics/BlockLength:
+  Exclude:
+    - 'rack-shield.gemspec'
+    - 'spec/**/*'

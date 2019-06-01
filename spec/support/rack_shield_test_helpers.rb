@@ -15,6 +15,6 @@ module Rack::Shield::TestHelpers
 
   def build_rack_env(attributes = {})
     env_config = File.join(File.dirname(__FILE__), 'rack_env.yml')
-    YAML.load(File.read(env_config)).merge(attributes)
+    YAML.safe_load(File.read(env_config)).merge(attributes)
   end
 end

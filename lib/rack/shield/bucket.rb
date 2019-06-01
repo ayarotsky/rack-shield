@@ -17,7 +17,7 @@ module Rack
       end
 
       def rejects?(request)
-        tokens_remaining_after(request) < 0
+        tokens_remaining_after(request).negative?
       end
 
       private

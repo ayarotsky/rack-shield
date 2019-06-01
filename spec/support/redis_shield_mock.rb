@@ -2,7 +2,7 @@
 
 class RedisShieldMock
   FX_PUSH_FAILURE_RESPONSE = -1
-  SUPPORTED_COMMANDS = %w(shield.fb_push module).freeze
+  SUPPORTED_COMMANDS = %w[shield.fb_push module].freeze
 
   def initialize(available_tokens:)
     @available_tokens = available_tokens
