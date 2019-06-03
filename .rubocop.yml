@@ -5,3 +5,6 @@ Metrics/BlockLength:
   Exclude:
     - 'rack-shield.gemspec'
     - 'spec/**/*'
+
+Style/DoubleNegation:
+  Enabled: false
