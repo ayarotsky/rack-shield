@@ -18,6 +18,7 @@ module Rack
           raise ArgumentError, 'redis connection is not configured' unless redis
           bucket = Bucket.new(redis)
           yield bucket
+          bucket.validate!
           buckets << bucket
         end
 

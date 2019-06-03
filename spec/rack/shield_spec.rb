@@ -3,6 +3,8 @@
 RSpec.describe Rack::Shield do
   after { described_class.clear_configuration }
 
+  let(:throttled_response) { ForbiddenResponse.new }
+
   describe '.redis=' do
     context 'connection to a redis server with "redis-shield" module' do
       let(:connection) { RedisShieldMock.new }
@@ -52,13 +54,16 @@ RSpec.describe Rack::Shield do
           described_class.configure_bucket do |bucket|
             bucket.replenish_rate = 10
             bucket.tokens = 6
+            bucket.key = 'test_key_1'
+            bucket.throttled_response = throttled_response
           end
         end
 
         configs << lambda do
           described_class.configure_bucket do |bucket|
             bucket.replenish_rate = 12
-            bucket.key = 'test_key'
+            bucket.key = 'test_key_2'
+            bucket.throttled_response = throttled_response
           end
         end
 
@@ -74,17 +79,17 @@ RSpec.describe Rack::Shield do
         expect(buckets.first).to have_attributes(
           replenish_rate: 10,
           tokens: 6,
-          key: nil,
+          key: 'test_key_1',
           filter: nil,
-          throttled_response: nil
+          throttled_response: throttled_response
         )
 
         expect(buckets.last).to have_attributes(
           replenish_rate: 12,
           tokens: 1,
-          key: 'test_key',
+          key: 'test_key_2',
           filter: nil,
-          throttled_response: nil
+          throttled_response: throttled_response
         )
       end
     end
@@ -109,7 +114,7 @@ RSpec.describe Rack::Shield do
           bucket.replenish_rate = rate_limit
           bucket.key = 'test_bucket'
           bucket.filter = ->(req) { req.ip == '127.0.0.100' }
-          bucket.throttled_response = ForbiddenResponse.new
+          bucket.throttled_response = throttled_response
         end
       end
 
@@ -126,7 +131,7 @@ RSpec.describe Rack::Shield do
           bucket.replenish_rate = rate_limit
           bucket.key = 'test_bucket'
           bucket.filter = ->(req) { req.ip == '127.0.0.1' }
-          bucket.throttled_response = ForbiddenResponse.new
+          bucket.throttled_response = throttled_response
         end
       end
 
@@ -168,7 +173,7 @@ RSpec.describe Rack::Shield do
           bucket.key = 'test_bucket'
           bucket.filter = ->(req) { req.ip == '127.0.0.1' }
           bucket.tokens = 3
-          bucket.throttled_response = ForbiddenResponse.new
+          bucket.throttled_response = throttled_response
         end
       end
 
