@@ -6,7 +6,6 @@ TODO: Delete this and the text above, and describe your gem
 
 [![Build Status](https://travis-ci.org/ayarotsky/rack-shield.svg?branch=master)](https://travis-ci.org/ayarotsky/rack-shield)
 [![Maintainability](https://api.codeclimate.com/v1/badges/374ac33a1a2d171e4fc9/maintainability)](https://codeclimate.com/github/ayarotsky/rack-shield/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/374ac33a1a2d171e4fc9/test_coverage)](https://codeclimate.com/github/ayarotsky/rack-shield/test_coverage)
 
 ## Installation
 

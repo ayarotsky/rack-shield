@@ -1,0 +1,18 @@
+plugins:
+  bundler-audit:
+    enabled: true
+  fixme:
+    enabled: true
+  flog:
+    enabled: true
+    config:
+      score_threshold: 20.0
+  git-legal:
+    enabled: true
+  markdownlint:
+    enabled: true
+  reek:
+    enabled: true
+  rubocop:
+    enabled: true
+    config: .rubocop.yml
