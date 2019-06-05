@@ -51,6 +51,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'rspec-its', '~> 1.3'
   spec.add_development_dependency 'rack-test', '~> 1.1'
-  spec.add_development_dependency 'rubocop', '~> 0.49.0'
   spec.add_development_dependency 'mock_redis', '~> 0.20.0'
 end
