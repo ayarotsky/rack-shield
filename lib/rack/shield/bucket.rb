@@ -14,8 +14,7 @@ module Rack
                 'taking the request object as a parameter'
       }.freeze
 
-      attr_accessor :replenish_rate, :throttled_response, :filter, :key
-      attr_writer :tokens
+      attr_accessor :replenish_rate, :throttled_response, :filter, :key, :tokens
 
       def initialize(redis)
         @redis = redis

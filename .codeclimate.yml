@@ -37,7 +37,5 @@ plugins:
       score_threshold: 20.0
   markdownlint:
     enabled: true
-  reek:
-    enabled: true
   rubocop:
     enabled: true
