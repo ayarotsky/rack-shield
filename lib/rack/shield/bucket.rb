@@ -9,10 +9,13 @@ module Rack
         throttled_response: 'must be a rack-compatible object ' \
                             '(https://rack.github.io)',
         key: 'must be either a string or an object that responds to ' \
-             'the `call` method, taking the request object as a parameter'
+             'the `call` method, taking the request object as a parameter',
+        filter: 'must be an object that responds to the `call` method, ' \
+                'taking the request object as a parameter'
       }.freeze
 
-      attr_accessor :replenish_rate, :throttled_response, :filter, :key, :tokens
+      attr_accessor :replenish_rate, :throttled_response, :filter, :key
+      attr_writer :tokens
 
       def initialize(redis)
         @redis = redis
@@ -23,7 +26,7 @@ module Rack
       end
 
       def matches?(request)
-        filter.nil? || filter.call(request)
+        filter.call(request)
       end
 
       def rejects?(request)

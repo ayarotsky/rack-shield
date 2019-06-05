@@ -46,6 +46,8 @@ RSpec.describe Rack::Shield do
     context 'redis connection was provided' do
       before { described_class.redis = RedisShieldMock.new }
 
+      let(:first_bucket_filter) { ->(req) { req.env['QUERY_STRING'] == '/' } }
+      let(:second_bucket_filter) { ->(req) { req.env['QUERY_STRING'] == 'test' } }
       let(:buckets) { described_class.buckets }
       let(:configuration) do
         configs = []
@@ -56,6 +58,7 @@ RSpec.describe Rack::Shield do
             bucket.tokens = 6
             bucket.key = 'test_key_1'
             bucket.throttled_response = throttled_response
+            bucket.filter = first_bucket_filter
           end
         end
 
@@ -64,6 +67,7 @@ RSpec.describe Rack::Shield do
             bucket.replenish_rate = 12
             bucket.key = 'test_key_2'
             bucket.throttled_response = throttled_response
+            bucket.filter = second_bucket_filter
           end
         end
 
@@ -80,7 +84,7 @@ RSpec.describe Rack::Shield do
           replenish_rate: 10,
           tokens: 6,
           key: 'test_key_1',
-          filter: nil,
+          filter: first_bucket_filter,
           throttled_response: throttled_response
         )
 
@@ -88,7 +92,7 @@ RSpec.describe Rack::Shield do
           replenish_rate: 12,
           tokens: 1,
           key: 'test_key_2',
-          filter: nil,
+          filter: second_bucket_filter,
           throttled_response: throttled_response
         )
       end

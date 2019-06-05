@@ -24,24 +24,14 @@ RSpec.describe Rack::Shield::Bucket do
   describe '#matches?' do
     let(:match) { bucket.matches?(request) }
 
-    context 'filter is empty' do
-      before { bucket.filter = nil }
-
-      it 'matches all requests' do
-        expect(match).to be true
-      end
+    it 'matches requests that satisfy conditions' do
+      bucket.filter = ->(req) { req.env['QUERY_STRING'] == 'test' }
+      expect(match).to be true
     end
 
-    context 'filter is configured' do
-      it 'matches requests that satisfy conditions' do
-        bucket.filter = ->(req) { req.env['QUERY_STRING'] == 'test' }
-        expect(match).to be true
-      end
-
-      it 'does not match requests that do not satisfy conditions' do
-        bucket.filter = ->(req) { req.env['QUERY_STRING'] == '/' }
-        expect(match).to be false
-      end
+    it 'does not match requests that do not satisfy conditions' do
+      bucket.filter = ->(req) { req.env['QUERY_STRING'] == '/' }
+      expect(match).to be false
     end
   end
 
@@ -67,6 +57,7 @@ RSpec.describe Rack::Shield::Bucket do
       it 'raises an error' do
         bucket.throttled_response = ForbiddenResponse.new
         bucket.key = 'test_key'
+        bucket.filter = ->(req) { true }
 
         expect { bucket.validate! }
           .to raise_error ArgumentError,
@@ -78,6 +69,7 @@ RSpec.describe Rack::Shield::Bucket do
       it 'raises an error' do
         bucket.key = 'test_key'
         bucket.replenish_rate = 10
+        bucket.filter = ->(req) { true }
 
         expect { bucket.validate! }
           .to raise_error ArgumentError,
@@ -90,11 +82,25 @@ RSpec.describe Rack::Shield::Bucket do
       it 'raises an error' do
         bucket.throttled_response = ForbiddenResponse.new
         bucket.replenish_rate = 10
+        bucket.filter = ->(req) { true }
 
         expect { bucket.validate! }
           .to raise_error ArgumentError,
                           'Bucket#key must be either a string or an object that responds ' \
                           'to the `call` method, taking the request object as a parameter'
+      end
+    end
+
+    context 'filter was not set' do
+      it 'raises an error' do
+        bucket.throttled_response = ForbiddenResponse.new
+        bucket.key = 'test_key'
+        bucket.replenish_rate = 10
+
+        expect { bucket.validate! }
+          .to raise_error ArgumentError,
+                          'Bucket#filter must be an object that responds to the `call` method, ' \
+                          'taking the request object as a parameter'
       end
     end
 
@@ -106,7 +112,9 @@ RSpec.describe Rack::Shield::Bucket do
                           'Bucket#throttled_response must be a rack-compatible object ' \
                           "(https://rack.github.io)\n" \
                           'Bucket#key must be either a string or an object that responds ' \
-                          'to the `call` method, taking the request object as a parameter'
+                          "to the `call` method, taking the request object as a parameter\n" \
+                          'Bucket#filter must be an object that responds to the `call` method, ' \
+                          'taking the request object as a parameter'
       end
     end
   end
