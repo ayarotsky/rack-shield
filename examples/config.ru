@@ -1,43 +1,14 @@
 # frozen_string_literal: true
 
 require 'rack/shield'
+require 'logger'
+
+require_relative 'throttled_response'
 
 Rack::Shield.redis = Redis.new
+Rack::Shield.logger = Logger.new(STDOUT)
 
-class ThrottledResponse
-  def initialize(limit:)
-    @limit = limit
-  end
-
-  def call(_env)
-    [429, headers, body]
-  end
-
-  private
-
-  def headers
-    {
-      'Content-Type' => 'text/html',
-      'Retry-After' => '2'
-    }
-  end
-
-  def body
-    StringIO.new(<<~HTML)
-      <html>
-        <head>
-          <title>Too Many Requests</title>
-        </head>
-        <body>
-          <h1>Too Many Requests</h1>
-          <p>I only allow #{@limit} requests per second. Try again soon.</p>
-        </body>
-      </html>
-    HTML
-  end
-end
-
-Rack::Shield.configure_bucket do |bucket|
+Rack::Shield.configure_bucket 'rate limit by PATH_INFO' do |bucket|
   bucket.key = ->(req) { "test_key_#{req.ip}" }
   bucket.filter = ->(req) { req.env['PATH_INFO'] == '/' }
   bucket.replenish_rate = 4

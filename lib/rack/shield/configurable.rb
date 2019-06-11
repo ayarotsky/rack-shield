@@ -11,12 +11,17 @@ module Rack
         self.class.buckets
       end
 
+      def logger
+        self.class.logger
+      end
+
       module ClassMethods
         attr_reader :redis
+        attr_writer :logger
 
-        def configure_bucket
+        def configure_bucket(id)
           raise ArgumentError, 'redis connection is not configured' unless redis
-          bucket = Bucket.new(redis)
+          bucket = Bucket.new(id, redis)
           yield bucket
           bucket.validate!
           buckets << bucket
@@ -24,6 +29,10 @@ module Rack
 
         def redis=(connection)
           @redis = RedisConnection.new(connection)
+        end
+
+        def logger
+          @logger ||= NullLogger.new
         end
 
         def buckets

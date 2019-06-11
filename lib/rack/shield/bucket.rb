@@ -6,17 +6,18 @@ module Rack
       DEFAULT_TOKENS_COUNT = 1
       ERROR_MESSAGES = {
         replenish_rate: 'must be a positive number',
-        throttled_response: 'must be a rack-compatible object ' \
-                            '(https://rack.github.io)',
-        key: 'must be either a string or an object that responds to ' \
-             'the `call` method, taking the request object as a parameter',
+        throttled_response: 'must be a rack-compatible object (https://rack.github.io)',
+        key: 'must be either a string or an object that responds to the `call` method, ' \
+             'taking the request object as a parameter',
         filter: 'must be an object that responds to the `call` method, ' \
                 'taking the request object as a parameter'
       }.freeze
 
       attr_accessor :replenish_rate, :throttled_response, :filter, :key, :tokens
+      attr_reader :id
 
-      def initialize(redis)
+      def initialize(id, redis)
+        @id = id
         @redis = redis
       end
 
@@ -28,8 +29,8 @@ module Rack
         filter.call(request)
       end
 
-      def rejects?(request)
-        tokens_remaining_after(request).negative?
+      def push(request)
+        @redis.fb_push(key_from(request), replenish_rate, tokens_from(request))
       end
 
       def validate!
@@ -41,10 +42,6 @@ module Rack
       end
 
       private
-
-      def tokens_remaining_after(request)
-        @redis.fb_push(key_from(request), replenish_rate, tokens_from(request))
-      end
 
       def key_from(request)
         key.respond_to?(:call) ? key.call(request) : key

@@ -8,6 +8,7 @@ module Rack
     autoload :Bucket, 'rack/shield/bucket'
     autoload :RedisConnection, 'rack/shield/redis_connection'
     autoload :Configurable, 'rack/shield/configurable'
+    autoload :Check, 'rack/shield/check'
 
     include Configurable
 
@@ -16,14 +17,9 @@ module Rack
     end
 
     def call(env)
-      request = Rack::Request.new(env)
-      bucket = buckets.find { |b| b.matches?(request) }
-
-      if bucket&.rejects?(request)
-        bucket.throttled_response.call(env)
-      else
-        @app.call(env)
-      end
+      check = Check.new(@app, buckets, env)
+      logger.info(check.explanation)
+      check.response.call(env)
     end
   end
 end
