@@ -32,7 +32,7 @@ module Rack
         end
 
         def logger
-          @logger ||= NullLogger.new
+          @logger ||= NullLogger.new(self)
         end
 
         def buckets

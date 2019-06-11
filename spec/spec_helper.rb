@@ -4,6 +4,7 @@ require 'bundler/setup'
 require 'rspec/its'
 require 'rack/test'
 require 'mock_redis'
+require 'logger'
 
 require 'rack/shield'
 

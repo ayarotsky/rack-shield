@@ -6,9 +6,9 @@ require 'redis'
 module Rack
   class Shield
     autoload :Bucket, 'rack/shield/bucket'
-    autoload :RedisConnection, 'rack/shield/redis_connection'
-    autoload :Configurable, 'rack/shield/configurable'
     autoload :Check, 'rack/shield/check'
+    autoload :Configurable, 'rack/shield/configurable'
+    autoload :RedisConnection, 'rack/shield/redis_connection'
 
     include Configurable
 

@@ -27,11 +27,28 @@ RSpec.describe Rack::Shield do
     end
   end
 
+  describe '.logger=' do
+    context 'no logger was explicitly set' do
+      it 'uses Rack::NullLogger' do
+        expect(described_class.logger).to be_an_instance_of(Rack::NullLogger)
+      end
+    end
+
+    context 'logger was explicitly set' do
+      let(:logger) { Logger.new(STDOUT) }
+
+      it 'uses the assigned logger' do
+        described_class.logger = logger
+        expect(described_class.logger).to eq(logger)
+      end
+    end
+  end
+
   describe '.configure_bucket' do
     context 'redis connection was not provided' do
       let(:configuration) do
         lambda do
-          described_class.configure_bucket do |bucket|
+          described_class.configure_bucket 'Test Bucket' do |bucket|
             bucket.replenish_rate = 100
           end
         end
@@ -53,7 +70,7 @@ RSpec.describe Rack::Shield do
         configs = []
 
         configs << lambda do
-          described_class.configure_bucket do |bucket|
+          described_class.configure_bucket 'Bucket 1' do |bucket|
             bucket.replenish_rate = 10
             bucket.tokens = 6
             bucket.key = 'test_key_1'
@@ -63,7 +80,7 @@ RSpec.describe Rack::Shield do
         end
 
         configs << lambda do
-          described_class.configure_bucket do |bucket|
+          described_class.configure_bucket 'Bucket 2' do |bucket|
             bucket.replenish_rate = 12
             bucket.key = 'test_key_2'
             bucket.throttled_response = throttled_response
@@ -100,21 +117,27 @@ RSpec.describe Rack::Shield do
   end
 
   describe '#call' do
-    before { described_class.redis = redis }
+    before do
+      described_class.redis = redis
+      described_class.logger = logger
+    end
+
     let(:redis) { RedisShieldMock.new(available_tokens: rate_limit) }
     let(:rate_limit) { 10 }
+    let(:logger) { spy(Rack::NullLogger) }
 
     context 'no buckets were configured' do
       it 'accepts the request' do
         get '/'
         expect(last_response).to be_ok
         expect(last_response.body).to eq('Hello World')
+        expect(logger).to have_received(:info).with('No buckets match the request')
       end
     end
 
     context 'no filters match the request' do
       before do
-        described_class.configure_bucket do |bucket|
+        described_class.configure_bucket 'Test Bucket' do |bucket|
           bucket.replenish_rate = rate_limit
           bucket.key = 'test_bucket'
           bucket.filter = ->(req) { req.ip == '127.0.0.100' }
@@ -126,12 +149,13 @@ RSpec.describe Rack::Shield do
         get '/'
         expect(last_response).to be_ok
         expect(last_response.body).to eq('Hello World')
+        expect(logger).to have_received(:info).with('No buckets match the request')
       end
     end
 
     context 'the request matches a filter' do
       before do
-        described_class.configure_bucket do |bucket|
+        described_class.configure_bucket 'Test Bucket' do |bucket|
           bucket.replenish_rate = rate_limit
           bucket.key = 'test_bucket'
           bucket.filter = ->(req) { req.ip == '127.0.0.1' }
@@ -144,6 +168,9 @@ RSpec.describe Rack::Shield do
           get '/'
           expect(last_response).to be_ok
           expect(last_response.body).to eq('Hello World')
+          expect(logger)
+            .to have_received(:info)
+            .with('Request accepted by the bucket "Test Bucket"')
         end
       end
 
@@ -154,6 +181,9 @@ RSpec.describe Rack::Shield do
           get '/'
           expect(last_response).to be_forbidden
           expect(last_response.body).to eq('Forbidden')
+          expect(logger)
+            .to have_received(:info)
+            .with('Request rejected by the bucket "Test Bucket"')
         end
       end
     end
@@ -162,7 +192,7 @@ RSpec.describe Rack::Shield do
       before do
         header 'request_tokens', '19'
 
-        described_class.configure_bucket do |bucket|
+        described_class.configure_bucket 'Bucket 1' do |bucket|
           bucket.replenish_rate = rate_limit
           bucket.key = 'test_bucket'
           bucket.filter = ->(req) { req.ip == '127.0.0.1' }
@@ -172,7 +202,7 @@ RSpec.describe Rack::Shield do
           end
         end
 
-        described_class.configure_bucket do |bucket|
+        described_class.configure_bucket 'Bucket 2' do |bucket|
           bucket.replenish_rate = rate_limit
           bucket.key = 'test_bucket'
           bucket.filter = ->(req) { req.ip == '127.0.0.1' }
@@ -185,6 +215,9 @@ RSpec.describe Rack::Shield do
         get '/'
         expect(last_response.status).to eq(429)
         expect(last_response.body).to eq('Too Many Requests')
+        expect(logger)
+          .to have_received(:info)
+          .with('Request rejected by the bucket "Bucket 1"')
       end
     end
   end
