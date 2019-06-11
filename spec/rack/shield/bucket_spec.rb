@@ -6,7 +6,11 @@ RSpec.describe Rack::Shield::Bucket do
   let(:request) do
     Rack::Request.new(build_rack_env('QUERY_STRING' => 'test', 'count' => 21))
   end
-  subject(:bucket) { described_class.new(redis_connection) }
+  subject(:bucket) { described_class.new('Test ID', redis_connection) }
+
+  describe '#id' do
+    its(:id) { is_expected.to eq('Test ID') }
+  end
 
   describe '#tokens' do
     context 'value was not set' do
@@ -21,34 +25,20 @@ RSpec.describe Rack::Shield::Bucket do
     end
   end
 
-  describe '#matches?' do
-    let(:match) { bucket.matches?(request) }
+  describe '#push' do
+    let(:redis_connection) { spy(Rack::Shield::RedisConnection) }
 
-    it 'matches requests that satisfy conditions' do
-      bucket.filter = ->(req) { req.env['QUERY_STRING'] == 'test' }
-      expect(match).to be true
+    before do
+      bucket.key = ->(req) { "test_key_for_query::#{req.env['QUERY_STRING']}" }
+      bucket.tokens = ->(req) { req.env['count'] }
+      bucket.replenish_rate = 10
     end
 
-    it 'does not match requests that do not satisfy conditions' do
-      bucket.filter = ->(req) { req.env['QUERY_STRING'] == '/' }
-      expect(match).to be false
-    end
-  end
-
-  describe '#rejects?' do
-    let(:reject) { bucket.rejects?(request) }
-
-    context 'request takes less tokens than available in bucket' do
-      it 'accepts the request' do
-        expect(reject).to be false
-      end
-    end
-
-    context 'request takes more tokens than available in bucket' do
-      it 'rejects the request' do
-        bucket.tokens = ->(req) { req.env['count'] }
-        expect(reject).to be true
-      end
+    it 'calls appropriate redis API' do
+      bucket.push(request)
+      expect(redis_connection)
+        .to have_received(:fb_push)
+        .with('test_key_for_query::test', 10, 21)
     end
   end
 

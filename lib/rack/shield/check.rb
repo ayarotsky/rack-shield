@@ -3,7 +3,6 @@
 module Rack
   class Shield
     class Check
-      # app:, buckets:, env:, logger:
       def initialize(app, buckets, env)
         @app = app
         @buckets = buckets
@@ -30,9 +29,8 @@ module Rack
 
       def fails?
         @failed ||= begin
-          return false unless matching_bucket
-          remaining_tokens = matching_bucket.push(@request)
-          remaining_tokens.negative?
+          remaining_tokens = matching_bucket&.push(@request)
+          !!remaining_tokens&.negative?
         end
       end
 
