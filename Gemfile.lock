@@ -55,7 +55,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bundler (~> 2.0)
+  bundler (>= 1.15.0, < 3.0)
   mock_redis (~> 0.20.0)
   rack-shield!
   rack-test (~> 1.1)
