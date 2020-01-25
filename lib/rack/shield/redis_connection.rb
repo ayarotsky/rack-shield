@@ -8,14 +8,15 @@ module Rack
         validate!
       end
 
-      def fb_push(key, replenish_rate, tokens)
-        connection.call('SHIELD.FB_PUSH', key, replenish_rate, tokens)
+      def shield_absorb(key, replenish_rate, tokens)
+        connection.call('SHIELD.absorb', key, replenish_rate, tokens)
       end
 
       private
 
       def validate!
         return if valid?
+
         raise ArgumentError,
               'must be a connection to a redis server with ' \
               '"redis-shield" module included'

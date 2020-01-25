@@ -28,7 +28,7 @@ module Rack
       end
 
       def fails?
-        @failed ||= begin
+        @fails ||= begin
           remaining_tokens = matching_bucket&.push(@request)
           !!remaining_tokens&.negative?
         end
@@ -36,6 +36,7 @@ module Rack
 
       def matching_bucket
         return @matching_bucket if defined?(@matching_bucket)
+
         @matching_bucket = @buckets.find { |bucket| bucket.matches?(@request) }
       end
     end

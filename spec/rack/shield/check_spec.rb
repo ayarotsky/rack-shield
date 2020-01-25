@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe Rack::Shield::Check do
+  subject { described_class.new(app, buckets, env) }
+
   let(:redis) { RedisShieldMock.new(available_tokens: 10) }
   let(:redis_connection) { Rack::Shield::RedisConnection.new(redis) }
   let(:throttled_response) { ForbiddenResponse.new }
@@ -15,9 +17,8 @@ RSpec.describe Rack::Shield::Check do
                   filter: ->(req) { req.env['QUERY_STRING'] == 'test' })
     ]
   end
-  let(:app) { double(Rack::Shield) }
+  let(:app) { instance_double(Rack::Shield) }
   let(:env) { build_rack_env('QUERY_STRING' => 'test', 'count' => 21) }
-  subject { described_class.new(app, buckets, env) }
 
   describe '#response' do
     context 'check fails' do

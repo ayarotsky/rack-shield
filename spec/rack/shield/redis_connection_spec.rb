@@ -23,14 +23,14 @@ RSpec.describe Rack::Shield::RedisConnection do
     end
   end
 
-  describe '#fb_push' do
-    let(:connection) { spy(:RedisShieldMock) }
+  describe '#shield_absorb' do
+    let(:connection) { spy(RedisShieldMock) } # rubocop:disable RSpec/VerifiedDoubles
     let(:redis) { described_class.new(connection) }
     let(:args) { %i[key replenish_rate tokens] }
 
     it 'calls appropriate redis API' do
-      redis.fb_push(*args)
-      expect(connection).to have_received(:call).with('SHIELD.FB_PUSH', *args)
+      redis.shield_absorb(*args)
+      expect(connection).to have_received(:call).with('SHIELD.absorb', *args)
     end
   end
 end

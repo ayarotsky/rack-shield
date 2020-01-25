@@ -91,6 +91,7 @@ RSpec.describe Rack::Shield do
         configs
       end
 
+      # rubocop:disable RSpec/ExampleLength
       it 'creates and stores properly configured buckets' do
         expect { configuration.each(&:call) }
           .to change { described_class.buckets.size }
@@ -113,6 +114,7 @@ RSpec.describe Rack::Shield do
           throttled_response: throttled_response
         )
       end
+      # rubocop:enable RSpec/ExampleLength
     end
   end
 
@@ -124,7 +126,9 @@ RSpec.describe Rack::Shield do
 
     let(:redis) { RedisShieldMock.new(available_tokens: rate_limit) }
     let(:rate_limit) { 10 }
-    let(:logger) { spy(Rack::NullLogger) }
+    let(:logger) do
+      spy(Rack::NullLogger) # rubocop:disable RSpec/VerifiedDoubles
+    end
 
     context 'no buckets were configured' do
       it 'accepts the request' do
@@ -164,10 +168,14 @@ RSpec.describe Rack::Shield do
       end
 
       context 'the rate limit was not exceeded' do
+        before { get '/' }
+
         it 'accepts the request' do
-          get '/'
           expect(last_response).to be_ok
           expect(last_response.body).to eq('Hello World')
+        end
+
+        it 'logs request' do
           expect(logger)
             .to have_received(:info)
             .with('Request accepted by the bucket "Test Bucket"')
@@ -177,10 +185,14 @@ RSpec.describe Rack::Shield do
       context 'the rate limit was exceeded' do
         let(:rate_limit) { 0 }
 
+        before { get '/' }
+
         it 'rejects the equest' do
-          get '/'
           expect(last_response).to be_forbidden
           expect(last_response.body).to eq('Forbidden')
+        end
+
+        it 'logs request' do
           expect(logger)
             .to have_received(:info)
             .with('Request rejected by the bucket "Test Bucket"')
@@ -209,12 +221,16 @@ RSpec.describe Rack::Shield do
           bucket.tokens = 3
           bucket.throttled_response = throttled_response
         end
+
+        get '/'
       end
 
       it 'uses the first bucket to asses the request' do
-        get '/'
         expect(last_response.status).to eq(429)
         expect(last_response.body).to eq('Too Many Requests')
+      end
+
+      it 'logs request' do
         expect(logger)
           .to have_received(:info)
           .with('Request rejected by the bucket "Bucket 1"')

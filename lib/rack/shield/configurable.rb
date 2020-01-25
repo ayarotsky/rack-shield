@@ -21,6 +21,7 @@ module Rack
 
         def configure_bucket(id)
           raise ArgumentError, 'redis connection is not configured' unless redis
+
           bucket = Bucket.new(id, redis)
           yield bucket
           bucket.validate!

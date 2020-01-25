@@ -13,7 +13,8 @@ module Rack
                 'taking the request object as a parameter'
       }.freeze
 
-      attr_accessor :replenish_rate, :throttled_response, :filter, :key, :tokens
+      attr_accessor :replenish_rate, :throttled_response, :filter, :key
+      attr_writer :tokens
       attr_reader :id
 
       def initialize(id, redis)
@@ -30,7 +31,7 @@ module Rack
       end
 
       def push(request)
-        @redis.fb_push(key_from(request), replenish_rate, tokens_from(request))
+        @redis.shield_absorb(key_from(request), replenish_rate, tokens_from(request))
       end
 
       def validate!
