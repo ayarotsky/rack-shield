@@ -5,7 +5,7 @@ Welcome to your new gem! In this directory, you'll find the files you need to be
 TODO: Delete this and the text above, and describe your gem
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
-[![Build Status](https://travis-ci.org/ayarotsky/rack-shield.svg?branch=master)](https://travis-ci.org/ayarotsky/rack-shield)
+[![Build Status](https://travis-ci.com/ayarotsky/rack-shield.svg?branch=master)](https://travis-ci.com/ayarotsky/rack-shield)
 [![Maintainability](https://api.codeclimate.com/v1/badges/374ac33a1a2d171e4fc9/maintainability)](https://codeclimate.com/github/ayarotsky/rack-shield/maintainability)
 
 ## Installation
