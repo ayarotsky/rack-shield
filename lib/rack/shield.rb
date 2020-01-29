@@ -18,8 +18,8 @@ module Rack
 
     def call(env)
       check = Check.new(@app, buckets, env)
-      logger.info(check.explanation)
-      check.response.call(env)
+      logger.info(check.summary)
+      check.respond
     end
   end
 end

@@ -17,37 +17,45 @@ RSpec.describe Rack::Shield::Check do
                   filter: ->(req) { req.env['QUERY_STRING'] == 'test' })
     ]
   end
-  let(:app) { instance_double(Rack::Shield) }
+  let(:app) { instance_double(Rack::Shield, call: [200, {}, ['Hello World']]) }
   let(:env) { build_rack_env('QUERY_STRING' => 'test', 'count' => 21) }
 
-  describe '#response' do
+  describe '#respond' do
+    let(:response) { subject.respond }
+
     context 'check fails' do
-      its(:response) { is_expected.to eq(throttled_response) }
+      it 'rejects request with throttled response handler' do
+        expect(response)
+          .to eq([403, { 'Content-Type' => 'text/plain' }, %w[Forbidden]])
+      end
     end
 
     context 'check passes' do
       let(:env) { build_rack_env('QUERY_STRING' => 'test', 'count' => 2) }
 
-      its(:response) { is_expected.to eq(app) }
+      it 'passes request to the app' do
+        expect(response)
+          .to eq([200, {}, ['Hello World']])
+      end
     end
   end
 
-  describe '#explanation' do
+  describe '#summary' do
     context 'check fails' do
-      its(:explanation) { is_expected.to eq('Request rejected by the bucket "Test Bucket"') }
+      its(:summary) { is_expected.to eq('Request rejected by the bucket "Test Bucket"') }
     end
 
     context 'check passes' do
       context 'no buckets match the request' do
         let(:env) { build_rack_env('QUERY_STRING' => '123', 'count' => 21) }
 
-        its(:explanation) { is_expected.to eq('No buckets match the request') }
+        its(:summary) { is_expected.to eq('No buckets match the request') }
       end
 
       context 'one of the buckets match the request' do
         let(:env) { build_rack_env('QUERY_STRING' => 'test', 'count' => 2) }
 
-        its(:explanation) { is_expected.to eq('Request accepted by the bucket "Test Bucket"') }
+        its(:summary) { is_expected.to eq('Request accepted by the bucket "Test Bucket"') }
       end
     end
   end
