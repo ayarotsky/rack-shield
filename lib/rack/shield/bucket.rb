@@ -3,9 +3,9 @@
 module Rack
   class Shield
     class Bucket
-      DEFAULT_TOKENS_COUNT = 1
       ERROR_MESSAGES = {
         replenish_rate: 'must be a positive number',
+        period: 'must be a positive number',
         throttled_response: 'must be a rack-compatible object (https://rack.github.io)',
         key: 'must be either a string or an object that responds to the `call` method, ' \
              'taking the request object as a parameter',
@@ -13,8 +13,7 @@ module Rack
                 'taking the request object as a parameter'
       }.freeze
 
-      attr_accessor :replenish_rate, :throttled_response, :filter, :key
-      attr_writer :tokens
+      attr_accessor :replenish_rate, :period, :throttled_response, :filter, :key, :tokens
       attr_reader :id
 
       def initialize(id, redis)
@@ -22,21 +21,20 @@ module Rack
         @redis = redis
       end
 
-      def tokens
-        @tokens || DEFAULT_TOKENS_COUNT
-      end
-
       def matches?(request)
         filter.call(request)
       end
 
-      def push(request)
-        @redis.shield_absorb(key_from(request), replenish_rate, tokens_from(request))
+      def pour(request)
+        @redis.shield_absorb(key_from(request),
+                             replenish_rate,
+                             period,
+                             tokens_from(request))
       end
 
       def validate!
         errors = ERROR_MESSAGES.map do |attribute, error|
-          "Bucket##{attribute} #{error}" unless present?(attribute)
+          "#{attribute} #{error}" unless present?(attribute)
         end.compact
 
         raise ArgumentError, errors.join("\n") unless errors.empty?

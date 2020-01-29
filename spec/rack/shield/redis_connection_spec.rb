@@ -17,8 +17,7 @@ RSpec.describe Rack::Shield::RedisConnection do
       it 'raises an error' do
         expect { described_class.new(connection) }
           .to raise_error ArgumentError,
-                          'must be a connection to a redis server with ' \
-                          '"redis-shield" module included'
+                          'must be a connection to redis with "redis-shield" module'
       end
     end
   end

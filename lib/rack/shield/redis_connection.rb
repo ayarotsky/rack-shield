@@ -8,8 +8,10 @@ module Rack
         validate!
       end
 
-      def shield_absorb(key, replenish_rate, tokens)
-        connection.call('SHIELD.absorb', key, replenish_rate, tokens)
+      def shield_absorb(key, replenish_rate, period, tokens = nil)
+        args = [key, replenish_rate, period]
+        args << tokens if tokens
+        connection.call('SHIELD.absorb', *args)
       end
 
       private
@@ -18,8 +20,7 @@ module Rack
         return if valid?
 
         raise ArgumentError,
-              'must be a connection to a redis server with ' \
-              '"redis-shield" module included'
+              'must be a connection to redis with "redis-shield" module'
       end
 
       def valid?

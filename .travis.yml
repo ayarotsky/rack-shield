@@ -14,6 +14,10 @@ notifications:
   email:
     on_success: never
 
+branches:
+  only:
+    - master
+
 before_install:
   - yes | gem update --system --force
   - gem install bundler

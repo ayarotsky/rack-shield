@@ -13,20 +13,7 @@ RSpec.describe Rack::Shield::Bucket do
     its(:id) { is_expected.to eq('Test ID') }
   end
 
-  describe '#tokens' do
-    context 'value was not set' do
-      its(:tokens) { is_expected.to eq(1) }
-    end
-
-    context 'value was set' do
-      it 'return the assigned value' do
-        bucket.tokens = 13
-        expect(bucket.tokens).to eq(13)
-      end
-    end
-  end
-
-  describe '#push' do
+  describe '#pour' do
     let(:redis_connection) do
       spy(Rack::Shield::RedisConnection) # rubocop:disable RSpec/VerifiedDoubles
     end
@@ -35,13 +22,14 @@ RSpec.describe Rack::Shield::Bucket do
       bucket.key = ->(req) { "test_key_for_query::#{req.env['QUERY_STRING']}" }
       bucket.tokens = ->(req) { req.env['count'] }
       bucket.replenish_rate = 10
+      bucket.period = 1
     end
 
     it 'calls appropriate redis API' do
-      bucket.push(request)
+      bucket.pour(request)
       expect(redis_connection)
         .to have_received(:shield_absorb)
-        .with('test_key_for_query::test', 10, 21)
+        .with('test_key_for_query::test', 10, 1, 21)
     end
   end
 
@@ -51,12 +39,27 @@ RSpec.describe Rack::Shield::Bucket do
         bucket.throttled_response = ForbiddenResponse.new
         bucket.key = 'test_key'
         bucket.filter = ->(_req) { true }
+        bucket.period = 60
       end
 
       it 'raises an error' do
         expect { bucket.validate! }
           .to raise_error ArgumentError,
-                          'Bucket#replenish_rate must be a positive number'
+                          'replenish_rate must be a positive number'
+      end
+    end
+
+    context 'period was not set' do
+      before do
+        bucket.throttled_response = ForbiddenResponse.new
+        bucket.key = 'test_key'
+        bucket.filter = ->(_req) { true }
+        bucket.replenish_rate = 10
+      end
+
+      it 'raises an error' do
+        expect { bucket.validate! }
+          .to raise_error ArgumentError, 'period must be a positive number'
       end
     end
 
@@ -65,12 +68,13 @@ RSpec.describe Rack::Shield::Bucket do
         bucket.key = 'test_key'
         bucket.replenish_rate = 10
         bucket.filter = ->(_req) { true }
+        bucket.period = 60
       end
 
       it 'raises an error' do
         expect { bucket.validate! }
           .to raise_error ArgumentError,
-                          'Bucket#throttled_response must be a rack-compatible object ' \
+                          'throttled_response must be a rack-compatible object ' \
                           '(https://rack.github.io)'
       end
     end
@@ -80,12 +84,13 @@ RSpec.describe Rack::Shield::Bucket do
         bucket.throttled_response = ForbiddenResponse.new
         bucket.replenish_rate = 10
         bucket.filter = ->(_req) { true }
+        bucket.period = 60
       end
 
       it 'raises an error' do
         expect { bucket.validate! }
           .to raise_error ArgumentError,
-                          'Bucket#key must be either a string or an object that responds ' \
+                          'key must be either a string or an object that responds ' \
                           'to the `call` method, taking the request object as a parameter'
       end
     end
@@ -95,10 +100,11 @@ RSpec.describe Rack::Shield::Bucket do
         bucket.throttled_response = ForbiddenResponse.new
         bucket.key = 'test_key'
         bucket.replenish_rate = 10
+        bucket.period = 60
       end
 
       let(:error_message) do
-        'Bucket#filter must be an object that responds to the `call` method, ' \
+        'filter must be an object that responds to the `call` method, ' \
         'taking the request object as a parameter'
       end
 
@@ -109,12 +115,13 @@ RSpec.describe Rack::Shield::Bucket do
 
     context 'none of the attributes were set' do
       let(:error_message) do
-        "Bucket#replenish_rate must be a positive number\n" \
-        'Bucket#throttled_response must be a rack-compatible object ' \
+        "replenish_rate must be a positive number\n" \
+        "period must be a positive number\n" \
+        'throttled_response must be a rack-compatible object ' \
         "(https://rack.github.io)\n" \
-        'Bucket#key must be either a string or an object that responds ' \
+        'key must be either a string or an object that responds ' \
         "to the `call` method, taking the request object as a parameter\n" \
-        'Bucket#filter must be an object that responds to the `call` method, ' \
+        'filter must be an object that responds to the `call` method, ' \
         'taking the request object as a parameter'
       end
 

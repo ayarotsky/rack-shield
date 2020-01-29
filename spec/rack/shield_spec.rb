@@ -21,8 +21,7 @@ RSpec.describe Rack::Shield do
       it 'raises an error' do
         expect { described_class.redis = connection }
           .to raise_error ArgumentError,
-                          'must be a connection to a redis server with ' \
-                          '"redis-shield" module included'
+                          'must be a connection to redis with "redis-shield" module'
       end
     end
   end
@@ -72,6 +71,7 @@ RSpec.describe Rack::Shield do
         configs << lambda do
           described_class.configure_bucket 'Bucket 1' do |bucket|
             bucket.replenish_rate = 10
+            bucket.period = 1
             bucket.tokens = 6
             bucket.key = 'test_key_1'
             bucket.throttled_response = throttled_response
@@ -82,6 +82,7 @@ RSpec.describe Rack::Shield do
         configs << lambda do
           described_class.configure_bucket 'Bucket 2' do |bucket|
             bucket.replenish_rate = 12
+            bucket.period = 2
             bucket.key = 'test_key_2'
             bucket.throttled_response = throttled_response
             bucket.filter = second_bucket_filter
@@ -100,6 +101,7 @@ RSpec.describe Rack::Shield do
 
         expect(buckets.first).to have_attributes(
           replenish_rate: 10,
+          period: 1,
           tokens: 6,
           key: 'test_key_1',
           filter: first_bucket_filter,
@@ -108,7 +110,8 @@ RSpec.describe Rack::Shield do
 
         expect(buckets.last).to have_attributes(
           replenish_rate: 12,
-          tokens: 1,
+          period: 2,
+          tokens: nil,
           key: 'test_key_2',
           filter: second_bucket_filter,
           throttled_response: throttled_response
@@ -143,6 +146,7 @@ RSpec.describe Rack::Shield do
       before do
         described_class.configure_bucket 'Test Bucket' do |bucket|
           bucket.replenish_rate = rate_limit
+          bucket.period = 1
           bucket.key = 'test_bucket'
           bucket.filter = ->(req) { req.ip == '127.0.0.100' }
           bucket.throttled_response = throttled_response
@@ -161,6 +165,7 @@ RSpec.describe Rack::Shield do
       before do
         described_class.configure_bucket 'Test Bucket' do |bucket|
           bucket.replenish_rate = rate_limit
+          bucket.period = 1
           bucket.key = 'test_bucket'
           bucket.filter = ->(req) { req.ip == '127.0.0.1' }
           bucket.throttled_response = throttled_response
@@ -206,6 +211,7 @@ RSpec.describe Rack::Shield do
 
         described_class.configure_bucket 'Bucket 1' do |bucket|
           bucket.replenish_rate = rate_limit
+          bucket.period = 1
           bucket.key = 'test_bucket'
           bucket.filter = ->(req) { req.ip == '127.0.0.1' }
           bucket.tokens = ->(req) { req.env['HTTP_REQUEST_TOKENS'] }
@@ -216,6 +222,7 @@ RSpec.describe Rack::Shield do
 
         described_class.configure_bucket 'Bucket 2' do |bucket|
           bucket.replenish_rate = rate_limit
+          bucket.period = 1
           bucket.key = 'test_bucket'
           bucket.filter = ->(req) { req.ip == '127.0.0.1' }
           bucket.tokens = 3

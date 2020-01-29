@@ -9,13 +9,15 @@ module Rack
         @request = Request.new(env)
       end
 
-      def response
-        fails? ? matching_bucket.throttled_response : @app
+      def respond
+        response = overflown? ? matching_bucket.throttled_response : @app
+        response.call(@request.env)
       end
 
-      def explanation
+      def summary
         if matching_bucket
-          "Request #{request_status} by the bucket \"#{matching_bucket.id}\""
+          status = overflown? ? :rejected : :accepted
+          "Request #{status} by the bucket \"#{matching_bucket.id}\""
         else
           'No buckets match the request'
         end
@@ -23,15 +25,8 @@ module Rack
 
       private
 
-      def request_status
-        fails? ? :rejected : :accepted
-      end
-
-      def fails?
-        @fails ||= begin
-          remaining_tokens = matching_bucket&.push(@request)
-          !!remaining_tokens&.negative?
-        end
+      def overflown?
+        @overflown ||= !!matching_bucket&.pour(@request)&.negative?
       end
 
       def matching_bucket
