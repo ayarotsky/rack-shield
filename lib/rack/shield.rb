@@ -17,9 +17,10 @@ module Rack
     end
 
     def call(env)
-      check = Check.new(@app, buckets, env)
+      check = Check.new(buckets, env)
       logger.info(check.summary)
-      check.respond
+      response = check.pass? ? @app : check.throttled_response
+      response.call(env)
     end
   end
 end
