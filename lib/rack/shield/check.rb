@@ -3,31 +3,29 @@
 module Rack
   class Shield
     class Check
-      def initialize(app, buckets, env)
-        @app = app
+      def initialize(buckets, env)
         @buckets = buckets
         @request = Request.new(env)
       end
 
-      def respond
-        response = overflown? ? matching_bucket.throttled_response : @app
-        response.call(@request.env)
+      def pass?
+        @pass ||= !matching_bucket&.pour(@request)&.negative?
+      end
+
+      def throttled_response
+        matching_bucket&.throttled_response
       end
 
       def summary
         if matching_bucket
-          status = overflown? ? :rejected : :accepted
-          "Request #{status} by the bucket \"#{matching_bucket.id}\""
+          status = pass? ? :accepted : :rejected
+          "Request #{status} by bucket \"#{matching_bucket.id}\""
         else
-          'No buckets match the request'
+          'No buckets match request'
         end
       end
 
       private
-
-      def overflown?
-        @overflown ||= !!matching_bucket&.pour(@request)&.negative?
-      end
 
       def matching_bucket
         return @matching_bucket if defined?(@matching_bucket)

@@ -138,7 +138,7 @@ RSpec.describe Rack::Shield do
         get '/'
         expect(last_response).to be_ok
         expect(last_response.body).to eq('Hello World')
-        expect(logger).to have_received(:info).with('No buckets match the request')
+        expect(logger).to have_received(:info).with('No buckets match request')
       end
     end
 
@@ -157,7 +157,7 @@ RSpec.describe Rack::Shield do
         get '/'
         expect(last_response).to be_ok
         expect(last_response.body).to eq('Hello World')
-        expect(logger).to have_received(:info).with('No buckets match the request')
+        expect(logger).to have_received(:info).with('No buckets match request')
       end
     end
 
@@ -183,7 +183,7 @@ RSpec.describe Rack::Shield do
         it 'logs request' do
           expect(logger)
             .to have_received(:info)
-            .with('Request accepted by the bucket "Test Bucket"')
+            .with('Request accepted by bucket "Test Bucket"')
         end
       end
 
@@ -200,7 +200,7 @@ RSpec.describe Rack::Shield do
         it 'logs request' do
           expect(logger)
             .to have_received(:info)
-            .with('Request rejected by the bucket "Test Bucket"')
+            .with('Request rejected by bucket "Test Bucket"')
         end
       end
     end
@@ -240,7 +240,7 @@ RSpec.describe Rack::Shield do
       it 'logs request' do
         expect(logger)
           .to have_received(:info)
-          .with('Request rejected by the bucket "Bucket 1"')
+          .with('Request rejected by bucket "Bucket 1"')
       end
     end
   end
