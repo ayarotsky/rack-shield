@@ -11,6 +11,7 @@ Rack::Shield.logger = Logger.new(STDOUT)
 Rack::Shield.configure_bucket 'rate limit by PATH_INFO' do |bucket|
   bucket.key = ->(req) { "test_key_#{req.ip}" }
   bucket.filter = ->(req) { req.env['PATH_INFO'] == '/' }
+  bucket.period = 1
   bucket.replenish_rate = 4
   bucket.throttled_response = ThrottledResponse.new(limit: 4)
 end

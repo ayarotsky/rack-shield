@@ -3,6 +3,7 @@ cache: bundler
 rvm:
   - 2.5
   - 2.6
+  - 2.7
   - ruby-head
 
 jobs:
@@ -18,9 +19,10 @@ branches:
   only:
     - master
 
+git:
+  depth: 3
+  quiet: true
+
 before_install:
   - yes | gem update --system --force
   - gem install bundler
-script:
-  - bundle exec rspec
-  - bundle exec rubocop
