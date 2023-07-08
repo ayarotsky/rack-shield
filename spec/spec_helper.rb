@@ -12,14 +12,13 @@ require 'simplecov-cobertura'
 SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
 
 require 'bundler/setup'
-require 'rspec/its'
 require 'rack/test'
 require 'mock_redis'
 require 'logger'
 
 require 'rack/shield'
 
-Dir[File.join(File.dirname(__FILE__), 'support/**/*.rb')].each { |f| require f }
+Dir[File.join(File.dirname(__FILE__), 'support/**/*.rb')].each { require _1 }
 
 RSpec.configure do |config|
   config.include Rack::Test::Methods

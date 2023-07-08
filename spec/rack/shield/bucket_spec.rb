@@ -3,14 +3,14 @@
 RSpec.describe Rack::Shield::Bucket do
   subject(:bucket) { described_class.new('Test ID', redis_connection) }
 
-  let(:redis) { RedisShieldMock.new(available_tokens: 10) }
+  let(:redis) { Rack::Shield::MockRedis.new(available_tokens: 10) }
   let(:redis_connection) { Rack::Shield::RedisConnection.new(redis) }
   let(:request) do
     Rack::Request.new(build_rack_env('QUERY_STRING' => 'test', 'count' => 21))
   end
 
   describe '#id' do
-    its(:id) { is_expected.to eq('Test ID') }
+    it { is_expected.to have_attributes(id: 'Test ID') }
   end
 
   describe '#pour' do
@@ -74,8 +74,7 @@ RSpec.describe Rack::Shield::Bucket do
       it 'raises an error' do
         expect { bucket.validate! }
           .to raise_error ArgumentError,
-                          'throttled_response must be a rack-compatible object ' \
-                          '(https://rack.github.io)'
+                          'throttled_response must be a rack-compatible object'
       end
     end
 
@@ -117,8 +116,7 @@ RSpec.describe Rack::Shield::Bucket do
       let(:error_message) do
         "replenish_rate must be a positive number\n" \
           "period must be a positive number\n" \
-          'throttled_response must be a rack-compatible object ' \
-          "(https://rack.github.io)\n" \
+          "throttled_response must be a rack-compatible object\n" \
           'key must be either a string or an object that responds ' \
           "to the `call` method, taking the request object as a parameter\n" \
           'filter must be an object that responds to the `call` method, ' \

@@ -3,7 +3,7 @@
 RSpec.describe Rack::Shield::Check do
   subject { described_class.new(buckets, env) }
 
-  let(:redis) { RedisShieldMock.new(available_tokens: 10) }
+  let(:redis) { Rack::Shield::MockRedis.new(available_tokens: 10) }
   let(:redis_connection) { Rack::Shield::RedisConnection.new(redis) }
   let(:throttled_response) { ForbiddenResponse.new }
   let(:buckets) do
@@ -23,20 +23,20 @@ RSpec.describe Rack::Shield::Check do
     context 'no buckets match the request' do
       let(:env) { build_rack_env('QUERY_STRING' => '123', 'count' => 21) }
 
-      its(:pass?) { is_expected.to be(true) }
+      it { is_expected.to be_pass }
     end
 
     context 'one of the buckets matches the request' do
       context 'bucket accepts request' do
         let(:env) { build_rack_env('QUERY_STRING' => 'test', 'count' => 2) }
 
-        its(:pass?) { is_expected.to be(true) }
+        it { is_expected.to be_pass }
       end
 
       context 'bucket rejects request' do
         let(:env) { build_rack_env('QUERY_STRING' => 'test', 'count' => 11) }
 
-        its(:pass?) { is_expected.to be(false) }
+        it { is_expected.not_to be_pass }
       end
     end
   end
@@ -45,37 +45,37 @@ RSpec.describe Rack::Shield::Check do
     context 'no buckets match the request' do
       let(:env) { build_rack_env('QUERY_STRING' => '123', 'count' => 21) }
 
-      its(:throttled_response) { is_expected.to be_nil }
+      it { is_expected.to have_attributes(throttled_response: nil) }
     end
 
     context 'one of the buckets matches the request' do
-      its(:throttled_response) { is_expected.to eq(throttled_response) }
+      it { is_expected.to have_attributes(throttled_response:) }
     end
   end
 
   describe '#summary' do
     context 'check fails' do
-      its(:summary) { is_expected.to eq('Request rejected by bucket "Test Bucket"') }
+      it { is_expected.to have_attributes(summary: 'Request rejected by bucket "Test Bucket"') }
     end
 
     context 'check passes' do
       context 'no buckets match the request' do
         let(:env) { build_rack_env('QUERY_STRING' => '123', 'count' => 21) }
 
-        its(:summary) { is_expected.to eq('No buckets match request') }
+        it { is_expected.to have_attributes(summary: 'No buckets match request') }
       end
 
       context 'one of the buckets matches the request' do
         context 'bucket accepts request' do
           let(:env) { build_rack_env('QUERY_STRING' => 'test', 'count' => 2) }
 
-          its(:summary) { is_expected.to eq('Request accepted by bucket "Test Bucket"') }
+          it { is_expected.to have_attributes(summary: 'Request accepted by bucket "Test Bucket"') }
         end
 
         context 'bucket rejects request' do
           let(:env) { build_rack_env('QUERY_STRING' => 'test', 'count' => 11) }
 
-          its(:summary) { is_expected.to eq('Request rejected by bucket "Test Bucket"') }
+          it { is_expected.to have_attributes(summary: 'Request rejected by bucket "Test Bucket"') }
         end
       end
     end

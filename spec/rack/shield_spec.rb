@@ -7,7 +7,7 @@ RSpec.describe Rack::Shield do
 
   describe '.redis=' do
     context 'connection to a redis server with "redis-shield" module' do
-      let(:connection) { RedisShieldMock.new }
+      let(:connection) { Rack::Shield::MockRedis.new }
 
       it 'assigns the connection' do
         described_class.redis = connection
@@ -60,7 +60,7 @@ RSpec.describe Rack::Shield do
     end
 
     context 'redis connection was provided' do
-      before { described_class.redis = RedisShieldMock.new }
+      before { described_class.redis = Rack::Shield::MockRedis.new }
 
       let(:first_bucket_filter) { ->(req) { req.env['QUERY_STRING'] == '/' } }
       let(:second_bucket_filter) { ->(req) { req.env['QUERY_STRING'] == 'test' } }
@@ -127,7 +127,7 @@ RSpec.describe Rack::Shield do
       described_class.logger = logger
     end
 
-    let(:redis) { RedisShieldMock.new(available_tokens: rate_limit) }
+    let(:redis) { Rack::Shield::MockRedis.new(available_tokens: rate_limit) }
     let(:rate_limit) { 10 }
     let(:logger) do
       spy(Rack::NullLogger) # rubocop:disable RSpec/VerifiedDoubles
