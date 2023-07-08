@@ -9,11 +9,11 @@ RSpec.describe Rack::Shield::Check do
   let(:buckets) do
     [
       create_bucket(id: 'Test Bucket',
-                    redis_connection: redis_connection,
+                    redis_connection:,
                     key: 'test_bucket',
                     replenish_rate: 10,
                     tokens: ->(req) { req.env['count'] },
-                    throttled_response: throttled_response,
+                    throttled_response:,
                     filter: ->(req) { req.env['QUERY_STRING'] == 'test' })
     ]
   end
@@ -23,20 +23,20 @@ RSpec.describe Rack::Shield::Check do
     context 'no buckets match the request' do
       let(:env) { build_rack_env('QUERY_STRING' => '123', 'count' => 21) }
 
-      its(:pass?) { is_expected.to eq(true) }
+      its(:pass?) { is_expected.to be(true) }
     end
 
     context 'one of the buckets matches the request' do
       context 'bucket accepts request' do
         let(:env) { build_rack_env('QUERY_STRING' => 'test', 'count' => 2) }
 
-        its(:pass?) { is_expected.to eq(true) }
+        its(:pass?) { is_expected.to be(true) }
       end
 
       context 'bucket rejects request' do
         let(:env) { build_rack_env('QUERY_STRING' => 'test', 'count' => 11) }
 
-        its(:pass?) { is_expected.to eq(false) }
+        its(:pass?) { is_expected.to be(false) }
       end
     end
   end

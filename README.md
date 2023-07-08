@@ -1,6 +1,6 @@
 # Rack::Shield
 
-[![Build Status](https://travis-ci.com/ayarotsky/rack-shield.svg?branch=master)](https://travis-ci.com/ayarotsky/rack-shield) ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+![Build Status](https://github.com/github/docs/actions/workflows/code_review.yml/badge.svg?branch=main) ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
 Rack middleware for blocking abusive requests.
 It uses [redis-shield](https://github.com/ayarotsky/redis-shield) as the rate limiter.

@@ -1,0 +1,11 @@
+active_scanners:
+  - Brakeman
+  - BundleAudit
+  - semgrep
+  - Trufflehog
+
+enforced_scanners:
+  - Brakeman
+  - BundleAudit
+  - semgrep
+  - Trufflehog

@@ -33,9 +33,9 @@ module Rack
       end
 
       def validate!
-        errors = ERROR_MESSAGES.map do |attribute, error|
+        errors = ERROR_MESSAGES.filter_map do |attribute, error|
           "#{attribute} #{error}" unless present?(attribute)
-        end.compact
+        end
 
         raise ArgumentError, errors.join("\n") unless errors.empty?
       end

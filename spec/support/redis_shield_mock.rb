@@ -13,7 +13,7 @@ class RedisShieldMock
     command = args[0].downcase
     raise ArgumentError, 'Unknown redis command' unless SUPPORTED_COMMANDS.include?(command)
 
-    __send__("#{command.tr('.', '_')}_redis_command", *args[1..-1])
+    __send__("#{command.tr('.', '_')}_redis_command", *args[1..])
   end
 
   def module(*_args)
