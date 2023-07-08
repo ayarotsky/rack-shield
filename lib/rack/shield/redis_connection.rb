@@ -19,16 +19,13 @@ module Rack
       def validate!
         return if valid?
 
-        raise ArgumentError,
-              'must be a connection to redis with "redis-shield" module'
+        raise ArgumentError, 'must be a connection to redis with "redis-shield" module'
       end
 
       def valid?
         connection.module('list')
                   .flatten
-                  .map(&:to_s)
-                  .map(&:downcase)
-                  .include?('shield')
+                  .include?('SHIELD')
       end
 
       def connection

@@ -3,13 +3,14 @@
 require 'rack'
 require 'redis'
 
-module Rack
-  class Shield
-    autoload :Bucket, 'rack/shield/bucket'
-    autoload :Check, 'rack/shield/check'
-    autoload :Configurable, 'rack/shield/configurable'
-    autoload :RedisConnection, 'rack/shield/redis_connection'
+require 'rack/shield/bucket'
+require 'rack/shield/check'
+require 'rack/shield/configurable'
+require 'rack/shield/redis_connection'
 
+module Rack
+  # Middleware that uses Redis Shield for blocking abusive requests.
+  class Shield
     include Configurable
 
     def initialize(app)

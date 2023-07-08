@@ -1,18 +1,16 @@
 # frozen_string_literal: true
 
+require 'forwardable'
+
 module Rack
   class Shield
     module Configurable
+      extend Forwardable
+
+      def_delegators :'self.class', :buckets, :logger
+
       def self.included(base)
         base.extend ClassMethods
-      end
-
-      def buckets
-        self.class.buckets
-      end
-
-      def logger
-        self.class.logger
       end
 
       module ClassMethods
@@ -33,7 +31,7 @@ module Rack
         end
 
         def logger
-          @logger ||= NullLogger.new(self)
+          @logger ||= Rack::NullLogger.new(self)
         end
 
         def buckets

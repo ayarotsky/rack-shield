@@ -56,7 +56,7 @@ Rack::Shield.logger = Logger.new(STDOUT)
 
 ### Configuration
 
-then you can take our example configuration and tailor it to your needs, or check out the advanced configuration examples.
+Then you can take our example configuration and tailor it to your needs, or check out the advanced configuration examples.
 
 It's possible to define as many rules as you want. Call `Rack::Shield.configure_bucket` in any file that runs when your app is being initialized. For rails apps this means creating a new file named config/initializers/rack_attack.rb and writing your rules there.
 

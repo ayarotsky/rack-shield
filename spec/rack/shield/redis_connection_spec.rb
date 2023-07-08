@@ -3,7 +3,7 @@
 RSpec.describe Rack::Shield::RedisConnection do
   describe '#initialize' do
     context 'connection to a redis server with "redis-shield" module' do
-      let(:connection) { RedisShieldMock.new }
+      let(:connection) { Rack::Shield::MockRedis.new }
 
       it 'initializes a new instance' do
         expect(described_class.new(connection))
@@ -23,7 +23,7 @@ RSpec.describe Rack::Shield::RedisConnection do
   end
 
   describe '#shield_absorb' do
-    let(:connection) { spy(RedisShieldMock) } # rubocop:disable RSpec/VerifiedDoubles
+    let(:connection) { spy(Rack::Shield::MockRedis) } # rubocop:disable RSpec/VerifiedDoubles
     let(:redis) { described_class.new(connection) }
     let(:args) { %i[key replenish_rate tokens] }
 

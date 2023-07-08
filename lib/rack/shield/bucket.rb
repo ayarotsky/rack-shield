@@ -6,15 +6,15 @@ module Rack
       ERROR_MESSAGES = {
         replenish_rate: 'must be a positive number',
         period: 'must be a positive number',
-        throttled_response: 'must be a rack-compatible object (https://rack.github.io)',
+        throttled_response: 'must be a rack-compatible object',
         key: 'must be either a string or an object that responds to the `call` method, ' \
              'taking the request object as a parameter',
         filter: 'must be an object that responds to the `call` method, ' \
                 'taking the request object as a parameter'
       }.freeze
 
-      attr_accessor :replenish_rate, :period, :throttled_response, :filter, :key, :tokens
       attr_reader :id
+      attr_accessor :replenish_rate, :period, :throttled_response, :filter, :key, :tokens
 
       def initialize(id, redis)
         @id = id

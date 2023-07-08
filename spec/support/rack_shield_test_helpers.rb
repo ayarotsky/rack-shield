@@ -28,7 +28,7 @@ module Rack
         Rack::Shield::Bucket.new(attrs[:id], attrs[:redis_connection]).tap do |bucket|
           valid_attrs = attrs.slice(:key, :tokens, :replenish_rate, :throttled_response, :filter)
           valid_attrs.each do |attr, value|
-            bucket.public_send("#{attr}=", value)
+            bucket.public_send(:"#{attr}=", value)
           end
         end
       end
