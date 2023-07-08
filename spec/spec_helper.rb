@@ -1,5 +1,16 @@
 # frozen_string_literal: true
 
+require 'simplecov'
+
+SimpleCov.start do
+  enable_coverage :branch
+
+  add_filter %r{^/spec/}
+end
+
+require 'simplecov-cobertura'
+SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
+
 require 'bundler/setup'
 require 'rspec/its'
 require 'rack/test'

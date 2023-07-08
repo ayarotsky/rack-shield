@@ -14,3 +14,5 @@ gem 'rspec-its', '~> 1.3'
 gem 'rubocop', '~> 1.54'
 gem 'rubocop-performance', '~> 1.18'
 gem 'rubocop-rspec', '~> 2.22'
+gem 'simplecov', '~> 0.22', require: false
+gem 'simplecov-cobertura', require: false
