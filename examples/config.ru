@@ -6,7 +6,7 @@ require 'logger'
 require_relative 'throttled_response'
 
 Rack::Shield.redis = Redis.new
-Rack::Shield.logger = Logger.new(STDOUT)
+Rack::Shield.logger = Logger.new($stdout)
 
 Rack::Shield.configure_bucket 'rate limit by PATH_INFO' do |bucket|
   bucket.key = ->(req) { "test_key_#{req.ip}" }

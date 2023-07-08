@@ -34,7 +34,7 @@ RSpec.describe Rack::Shield do
     end
 
     context 'logger was explicitly set' do
-      let(:logger) { Logger.new(STDOUT) }
+      let(:logger) { Logger.new($stdout) }
 
       it 'uses the assigned logger' do
         described_class.logger = logger
@@ -105,7 +105,7 @@ RSpec.describe Rack::Shield do
           tokens: 6,
           key: 'test_key_1',
           filter: first_bucket_filter,
-          throttled_response: throttled_response
+          throttled_response:
         )
 
         expect(buckets.last).to have_attributes(
@@ -114,7 +114,7 @@ RSpec.describe Rack::Shield do
           tokens: nil,
           key: 'test_key_2',
           filter: second_bucket_filter,
-          throttled_response: throttled_response
+          throttled_response:
         )
       end
       # rubocop:enable RSpec/ExampleLength

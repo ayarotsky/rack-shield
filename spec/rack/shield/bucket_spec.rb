@@ -105,7 +105,7 @@ RSpec.describe Rack::Shield::Bucket do
 
       let(:error_message) do
         'filter must be an object that responds to the `call` method, ' \
-        'taking the request object as a parameter'
+          'taking the request object as a parameter'
       end
 
       it 'raises an error' do
@@ -116,13 +116,13 @@ RSpec.describe Rack::Shield::Bucket do
     context 'none of the attributes were set' do
       let(:error_message) do
         "replenish_rate must be a positive number\n" \
-        "period must be a positive number\n" \
-        'throttled_response must be a rack-compatible object ' \
-        "(https://rack.github.io)\n" \
-        'key must be either a string or an object that responds ' \
-        "to the `call` method, taking the request object as a parameter\n" \
-        'filter must be an object that responds to the `call` method, ' \
-        'taking the request object as a parameter'
+          "period must be a positive number\n" \
+          'throttled_response must be a rack-compatible object ' \
+          "(https://rack.github.io)\n" \
+          'key must be either a string or an object that responds ' \
+          "to the `call` method, taking the request object as a parameter\n" \
+          'filter must be an object that responds to the `call` method, ' \
+          'taking the request object as a parameter'
       end
 
       it 'raises an error' do
