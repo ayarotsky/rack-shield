@@ -13,6 +13,6 @@ gem 'rspec', '~> 3.12'
 gem 'rubocop', '~> 1.60'
 gem 'rubocop-performance', '~> 1.20'
 gem 'rubocop-rake', '~> 0.6'
-gem 'rubocop-rspec', '~> 2.26'
+gem 'rubocop-rspec', '~> 3.0'
 gem 'simplecov', '~> 0.22', require: false
 gem 'simplecov-cobertura', require: false
